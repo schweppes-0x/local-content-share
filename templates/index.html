@@ -92,6 +92,15 @@
             font-family: 'Inter', sans-serif;
         }
     </style>
+    {{if authEnabled}}<script>
+        // Send the user back to the login page when their session has expired
+        const nativeFetch = window.fetch;
+        window.fetch = async (...args) => {
+            const response = await nativeFetch(...args);
+            if (response.status === 401) window.location.href = '/login';
+            return response;
+        };
+    </script>{{end}}
 </head>
 <body class="bg-crust text-text antialiased transition-colors duration-300">
 
@@ -116,6 +125,12 @@
                         <i class="fas fa-note-sticky text-subtext0"></i>
                         <span class="font-medium text-sm text-subtext0">Notepad</span>
                     </a>
+                    {{if authEnabled}}
+                    <a href="/logout" class="flex items-center gap-2 px-4 py-2 bg-base hover:bg-surface0 rounded-xl transition-colors no-underline" title="Lock">
+                        <i class="fas fa-lock text-subtext0"></i>
+                        <span class="font-medium text-sm text-subtext0">Lock</span>
+                    </a>
+                    {{end}}
                 </div>
             </section>
 
@@ -587,6 +602,8 @@
             xhr.onload = function() {
                 if (xhr.status >= 200 && xhr.status < 300) {
                     window.location.reload();
+                } else if (xhr.status === 401) {
+                    window.location.href = '/login';
                 } else {
                     console.error('Upload failed:', xhr.statusText);
                     progressContainer.classList.add('hidden');

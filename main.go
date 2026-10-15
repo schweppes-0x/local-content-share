@@ -296,7 +296,11 @@ func main() {
 		}
 	}()
 
-	tmpl := template.Must(template.ParseFS(content, "templates/*.html"))
+	password := os.Getenv("PASSWORD")
+	if password != "" {
+		log.Println("Password protection enabled.")
+	}
+	tmpl := template.Must(template.New("").Funcs(templateFuncs(password)).ParseFS(content, "templates/*.html"))
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// Clean up expired files on page load
@@ -799,7 +803,7 @@ func main() {
 	http.HandleFunc("/api/updates", handleContentUpdates)
 
 	// Start server
-	log.Fatal(http.ListenAndServe(*listenAddress, nil))
+	log.Fatal(http.ListenAndServe(*listenAddress, requireAuth(password, tmpl, http.DefaultServeMux)))
 }
 
 // Helper function to create files if they don't exist

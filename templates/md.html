@@ -92,6 +92,15 @@
             }
         }
     </script>
+    {{if authEnabled}}<script>
+        // Send the user back to the login page when their session has expired
+        const nativeFetch = window.fetch;
+        window.fetch = async (...args) => {
+            const response = await nativeFetch(...args);
+            if (response.status === 401) window.location.href = '/login?next=%2Fmd';
+            return response;
+        };
+    </script>{{end}}
 </head>
 <body class="bg-crust text-text antialiased transition-colors duration-300">
 
@@ -113,6 +122,11 @@
                 <button id="toggle-mode" onclick="toggleMode()" title="Reader Mode" class="flex items-center justify-center w-10 h-10 bg-base hover:bg-surface0 rounded-xl cursor-pointer transition-colors">
                     <i class="fas fa-book-reader text-subtext0"></i>
                 </button>
+                {{if authEnabled}}
+                <a href="/logout" title="Lock" class="flex items-center justify-center w-10 h-10 bg-base hover:bg-surface0 rounded-xl cursor-pointer transition-colors no-underline">
+                    <i class="fas fa-lock text-subtext0"></i>
+                </a>
+                {{end}}
             </div>
         </header>
 

@@ -28,7 +28,7 @@ A simple & elegant self-hosted app for **storing/sharing text snippets, files, a
 Make sure to look into [Tips & Notes](#tips-and-notes) if you have questions about individual functionalities.
 
 > [!NOTE]
-> This application is meant to be deployed within your homelab only. There is no authentication mechanism implemented. If you are exposing to the public, ensure there is authentication fronting it and non-destructive users using it.
+> This application is meant to be deployed within your homelab only. By default there is no authentication; you can lock the app behind a single shared password (see [Password Protection](#password-protection)). If you are exposing to the public, ensure there is proper authentication fronting it and non-destructive users using it.
 
 ## Screenshots
 
@@ -67,6 +67,23 @@ services:
     ports:
       - 8080:8080
 ```
+
+### Password Protection
+
+Set the `PASSWORD` environment variable to lock the whole app behind a login page:
+
+```bash
+docker run --name local-content-share \
+  -p 8080:8080 \
+  -e PASSWORD=change-me \
+  -v $HOME/.localcontentshare:/app/data \
+  tanq16/local-content-share:main
+```
+
+- Every page, upload, download, and live update requires logging in; leave `PASSWORD` unset to keep the app open
+- A successful login keeps the browser signed in for 30 days; click **Lock** to sign out
+- Changing `PASSWORD` signs out all devices
+- Serve the app over HTTPS (e.g., via a reverse proxy) if it is reachable from outside your network, otherwise the password travels in plain text
 
 ### Using Binary
 
